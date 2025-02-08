@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { CreateCombinationsDto } from './dto';
 import { ItemsService } from 'src/items/items.service';
