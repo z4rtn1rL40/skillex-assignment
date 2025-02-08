@@ -7,7 +7,7 @@ export class CombinationsController {
   constructor(private combinations: CombinationsService) {}
 
   @Post()
-  createCombinations(@Body() dto: CreateCombinationsDto) {
+  async createCombinations(@Body() dto: CreateCombinationsDto) {
     return this.combinations.createCombinations(dto);
   }
 }

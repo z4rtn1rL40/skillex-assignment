@@ -1,18 +1,71 @@
-import { Injectable, Logger } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { CreateCombinationsDto } from './dto';
 import { ItemsService } from 'src/items/items.service';
+import { Combination } from 'src/common/entities';
+import { InjectModel } from 'nest-knexjs';
+import { Knex } from 'knex';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class CombinationsService {
+  protected readonly COMBINATIONS_TABLE_NAME: string = 'combinations';
   protected readonly LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   protected readonly logger = new Logger(CombinationsService.name);
-  constructor(private itemsService: ItemsService) {}
 
-  async createCombinations(dto: CreateCombinationsDto) {
+  constructor(
+    @InjectModel() private knex: Knex,
+    private itemsService: ItemsService,
+  ) {}
+
+  async createCombinations(dto: CreateCombinationsDto): Promise<Combination> {
     this.logger.log(`Creating combinations ${JSON.stringify(dto)}`);
     const designations = await this.createDesignations(dto.input);
     const combinations = this.generateCombinations(designations, dto.length);
-    this.logger.log(combinations);
+    return this.createCombination(combinations);
+  }
+
+  async findCombinationByCombinationJSONString(jsonString: string) {
+    const [[existingCombination]] = await this.knex.raw(
+      `
+        SELECT id, combinations as combinations from ${this.COMBINATIONS_TABLE_NAME} WHERE combinations = ?
+      `,
+      [jsonString],
+    );
+
+    return existingCombination as Combination;
+  }
+
+  async findCombinationById(id: string) {
+    this.logger.log(`Getting combination by id ${id}`);
+    const [[queryResult]] = await this.knex.raw(
+      `SELECT * FROM ${this.COMBINATIONS_TABLE_NAME} WHERE id='${id}'`,
+    );
+
+    return queryResult as Combination;
+  }
+
+  private async createCombination(
+    combination: string[][],
+  ): Promise<Combination> {
+    const combinationString = JSON.stringify(combination);
+    try {
+      const trx = await this.knex.transaction();
+      const id = uuid();
+      await trx.raw(
+        ` INSERT INTO combinations (id, combinations)
+          VALUES (?, ?);
+        `,
+        [id, combinationString],
+      );
+
+      await trx.commit();
+      return this.findCombinationById(id);
+    } catch (err) {
+      this.logger.error(err);
+      throw new ConflictException('Failed to create combinations');
+    }
   }
 
   async createDesignations(input: number[]): Promise<string[]> {
