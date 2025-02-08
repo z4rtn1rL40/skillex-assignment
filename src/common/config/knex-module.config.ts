@@ -6,7 +6,7 @@ export const KnexModuleConfig = {
   inject: [ConfigService],
   useFactory: (configService: ConfigService): KnexModuleOptions => ({
     config: {
-      client: 'mysql',
+      client: 'mysql2',
       version: '5.7',
       useNullAsDefault: true,
       connection: {

@@ -1,21 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateCombinationsDto } from './dto';
+import { ItemsService } from 'src/items/items.service';
 
 @Injectable()
 export class CombinationsService {
   protected readonly LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   protected readonly logger = new Logger(CombinationsService.name);
-  constructor() {}
+  constructor(private itemsService: ItemsService) {}
 
-  createCombinations(dto: CreateCombinationsDto) {
+  async createCombinations(dto: CreateCombinationsDto) {
     this.logger.log(`Creating combinations ${JSON.stringify(dto)}`);
-    const designations = this.getDesignations(dto.input);
+    const designations = await this.createDesignations(dto.input);
     const combinations = this.generateCombinations(designations, dto.length);
     this.logger.log(combinations);
   }
 
-  getDesignations(input: number[]) {
-    return input.flatMap((occurrences, index) => {
+  async createDesignations(input: number[]): Promise<string[]> {
+    const designations = input.flatMap((occurrences, index) => {
       const result: string[] = [];
       const letter = this.LETTERS[index];
       for (let i = 0; i < occurrences; i++) {
@@ -23,6 +24,9 @@ export class CombinationsService {
       }
       return result;
     });
+
+    await this.itemsService.batchCreateItems({ items: designations });
+    return designations;
   }
 
   generateCombinations(items: string[], length: number) {
