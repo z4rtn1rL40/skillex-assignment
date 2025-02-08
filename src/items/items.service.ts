@@ -13,14 +13,11 @@ export class ItemsService {
     this.logger.log(`Creating items ${JSON.stringify(items)}`);
     const trx = await this.knex.transaction();
     try {
-      await Promise.all(
-        items.map((i) =>
-          trx.raw(
-            `INSERT INTO ${this.ITEMS_TABLE_NAME} (designation) VALUES(?)`,
-            [i],
-          ),
-        ),
-      );
+      for (const item of items) {
+        await trx.raw(
+          `INSERT IGNORE INTO ${this.ITEMS_TABLE_NAME} (designation) VALUES('${item}')`,
+        );
+      }
 
       await trx.commit();
       this.logger.log('Items saved successfully');
