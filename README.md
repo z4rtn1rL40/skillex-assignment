@@ -3,7 +3,7 @@
 ## Here you can find both solution of the assignment and the instructions how to run the code.
 Pnpm is used as default package manager if you don't have it installed you can install it by running the following command:
 
-## Prerequisits
+## Prerequisites
 I'm not using much for completing this assignment. However you might need to have docker compose and pnpm installed on your machine to be able to run the server
 
 1 Run this to decrypt the envs.
