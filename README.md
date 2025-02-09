@@ -24,7 +24,12 @@ You'd also need to have docker and docker compose installed on the machine to ru
   $ docker compose up
 ```
 
-4 To run the server use this command
+4 To migrate database use this command
+```bash
+  $ npm run migrate
+```
+
+5 To run the server use this command
 ```bash
   $ pnpm start
 ```

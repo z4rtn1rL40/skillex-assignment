@@ -11,7 +11,7 @@ export const KnexModuleConfig = {
       useNullAsDefault: true,
       connection: {
         database: configService.get<string>('DB_NAME'),
-        user: configService.get<string>('DB_USER'),
+        user: configService.get<string>('DB_CLIENT_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         host: configService.get<string>('DB_HOST'),
         port: Number(configService.get<number>('DB_PORT')),
